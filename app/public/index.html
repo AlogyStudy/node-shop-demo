@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="/lib/bootstrap/dist/css/bootstrap.css" />
+		<link rel="stylesheet" type="text/css" href="/css/main.css"/>
+	</head>
+	<body ng-app="shopApp">
+		
+		<nav class="navbar navbar-default navbar-fixed-top" role="navigation" ng-controller="NavBarCtrl">
+			
+			<div class="navbar-header">
+				<a href="#" class="navbar-brand">SHOP</a>
+			</div>
+			
+			<ul class="nav navbar-nav">
+				<li><a href="#/home">首页</a></li>
+				<li><a href="#/users/reg">注册</a></li>
+				<li><a href="#/users/login">登陆</a></li>
+			</ul>
+			
+		</nav>
+		
+		<div ng-view="" class="row">
+			
+		</div>
+		
+	</body>
+	<script src="/lib/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/lib/angular/angular.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/lib/angular-route/angular-route.min.js" type="text/javascript" charset="utf-8"></script>
+	
+	<script type="text/javascript">
+		
+		'use strict';
+		
+		let app = angular.module('shopApp', ['ngRoute']);
+		
+		app.config(function ( $routeProvider, $locationProvider ) {
+			
+			$routeProvider.when('/', {
+				
+				templateUrl: 'pages/home.html',
+				
+				controller: 'HomeCtrl' 
+					
+				
+			})
+				.when('/home', {
+					templateUrl: 'pages/home.html',
+					controller: 'HomeCtrl' 
+				})
+				.when('/users/reg', {
+					templateUrl: 'pages/user/reg.html',
+					controller: 'RegCtrl' 
+				})
+				.when('/users/login', {
+					templateUrl: 'pages/user/login.html',
+					controller: 'LoginCtrl' 
+				})
+				.otherwise({
+					redirectTo: '/'
+				});
+			
+		});
+		
+		// 主页
+		app.controller('HomeCtrl', function ( $scope ) {
+			
+			$scope.title = 'SHOP';
+			
+		});
+		
+		// 导航
+		app.controller('NavBarCtrl', function ( $scope ) {
+			
+		});
+		
+		// RegCtrl
+		app.controller('RegCtrl', function ( $scope ) {
+			
+			$scope.title = '注册';
+			
+			// 提交表单
+			$scope.save = function () {
+					console.log('saving');	
+			}
+			
+		});
+		
+		// LoginCtrl
+		app.controller('LoginCtrl', function ( $scope ) {
+			
+			$scope.title = '登陆';
+			
+		});
+		
+	</script>
+	
+</html>
