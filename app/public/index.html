@@ -15,9 +15,20 @@
 			</div>
 			
 			<ul class="nav navbar-nav">
-				<li><a href="#/home">首页</a></li>
-				<li><a href="#/users/reg">注册</a></li>
-				<li><a href="#/users/login">登陆</a></li>
+				<li ng-show="me"><a href="#/home">首页</a></li>
+				<li ng-hide="me"><a href="#/users/reg">注册</a></li>
+				<li ng-hide="me"><a href="#/users/login">登陆</a></li>
+			</ul>
+			
+			<ul class="nav-navbar-nav navbar-right" ng-show="me">
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+						<img style="width: 20px; height: 20px;" ng-src="{{ me.avatar }}" alt="{{ me.username }}" /><span>{{ me.username }}</span><span class="car"></span>
+					</a>
+					<ul class="dropdown-menu dropdown-menu-left">
+						<li><a href="#" ng-click="logout()">退出</a></li>
+					</ul>
+				</li>
 			</ul>
 			
 		</nav>
@@ -37,6 +48,27 @@
 		'use strict';
 		
 		let app = angular.module('shopApp', ['ngRoute']);
+		
+		// 所有模块加载完成之后第一个执行的方法
+		app.run(function ( $rootScope, $http, $location ) {
+			
+			// 检验是否登陆
+			$http({
+				url: '/users/validate',
+				method: 'POST',
+			})
+				.success(function ( user ) {
+					
+					$rootScope.me = user;
+					
+					$location.path('/home');
+					
+				})
+				.error(function ( data ) {
+					$location.path('/users/login');
+				});
+			
+		});
 		
 		app.config(function ( $routeProvider, $locationProvider ) {
 			
@@ -74,26 +106,75 @@
 		});
 		
 		// 导航
-		app.controller('NavBarCtrl', function ( $scope ) {
+		app.controller('NavBarCtrl', function ( $scope, $http, $location ) {
+			
+			$scope.logout = function () {
+				
+				$http({
+					url: '/user/logout',
+					method: 'POST'
+				})
+					.success(function ( reslut ) {
+						$loction.path('/users/login');
+					})
+					.error(function ( data ) {
+						$loction.path('/users/login');
+					});
+				
+			}
 			
 		});
 		
 		// RegCtrl
-		app.controller('RegCtrl', function ( $scope ) {
+		app.controller('RegCtrl', function ( $scope, $http, $location ) {
 			
 			$scope.title = '注册';
 			
 			// 提交表单
 			$scope.save = function () {
-					console.log('saving');	
+				$http({
+					url: '/users/reg',
+					method: 'POST',
+					data: $scope.user
+				})
+					.success(function ( user ) {
+						
+						$location.path('/users/login');
+						
+					})
+					.error(function ( data ) {
+						
+						$location.path('/users/reg');
+						
+					});
 			}
 			
 		});
 		
 		// LoginCtrl
-		app.controller('LoginCtrl', function ( $scope ) {
+		app.controller('LoginCtrl', function ( $rootScope, $scope, $http, $location ) {
 			
 			$scope.title = '登陆';
+			
+			$scope.save = function () {
+				
+				$http({
+					url: '/users/login',
+					method: 'POST',
+					data: $scope.user
+				})
+					.success(function ( reslut ) {
+						
+						$rootScope.me = reslut;
+						
+						$location.path('/home');
+						
+					})
+					.error(function ( data ) {
+//						$location.path('/users/login');
+					});
+				
+			};
 			
 		});
 		
