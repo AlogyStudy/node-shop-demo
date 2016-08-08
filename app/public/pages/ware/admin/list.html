@@ -1,0 +1,126 @@
+
+<div class="clo-md-12">
+	<div class="panel panel-default">
+		<div class="panel-heading clearfix">
+			
+			<div class="pull-left">
+				<button add-wares class="btn btn-sucess">增加</button>
+				<button class="btn btn-danger">批量删除</button>				
+			</div>
+			
+			<div class="pull-right">
+				<input type="text" name="keyword" ng-model="keyword" ng-change="filter()" />
+			</div>
+			
+			
+		</div>
+		
+		<!--end - heading-->
+		
+		<div class="panel-body">
+			
+			<table class="table table-striped table-responsive">
+				<thead>
+					<tr>
+						<td><input type="checkbox" id="selectAllWare" /></td>
+						<td>名称</td>
+						<td>价格</td>
+						<td>图片</td>
+						<td>操作</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="item in wares">
+						<td><input type="checkbox" data-id="{{ ware._id }}" name="chekItem" /></td>
+						<td>{{ item.name }}</td>
+						<td>{{ item.price }}</td>
+						<td><img style="width: 50px; height: 50px;" ng-src="{{ item.imgSrc }}" alt="{{ item.name }}" /></td>
+						<td class="text-center">
+							<button class="btn btn-primary">编辑</button>
+							<button class="btn btn-success">查看</button>
+							<button class="btn btn-danger">删除</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+		</div>
+		
+		
+		<!--end - body-->
+		
+		<div class="panel-footer text-center">
+			
+			<ul class="pagination pagination-sm">
+				
+				<li>上一页</li>
+				
+				<li ng-repeat="item in pages"></li>
+					
+				<li>下一页</li>
+				
+			</ul>
+			
+		</div>
+		
+		<!--end - footer-->
+		
+	</div>
+</div>
+
+
+<!--增加商品对话框-->
+
+<div class="modal fade" id="addDialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button class="close" data-dismiss="modal">&times;</button>
+				<h4 model-title>增加商品</h4>
+			</div>
+			
+			<!--end head-->
+			
+			<div class="modal-body">
+				<form action="" class="form-horizontal">
+					
+					<div class="form-group">
+						<label for="name" class="col-sm-2 control-label">名称</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" ng-model="ware.name" id="name" placeholder="请输入名称" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="price" class="col-sm-2 control-label">价格</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" ng-model="ware.price" id="price" placeholder="请输入价格" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="imgSrc" class="col-sm-2 control-label">图片</label>
+						<div class="col-sm-5">
+							<input file-model type="file" class="form-control" ng-model="ware.imgSrc" id="imgSrc" placeholder="图片" />
+						</div>
+						<div class="col-sm-5">
+							<img ng-src="{{ware.imgSrc}}" id="imgPreview" style="width: 100px; height: 100px;" />
+						</div>
+					</div>
+					
+				</form>
+			</div>
+			
+			<!--end body-->
+			
+			<div class="modal-footer">
+				<button class="btn btn-success" ng-click="save()" data-dismiss="modal">确定</button>
+				<button class="btn btn-default" data-dismiss="modal">取消</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<!-- end 增加商品对话框-->
+	

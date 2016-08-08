@@ -7,11 +7,13 @@ let app = express();
 let cookieParser = require('cookie-parser');
 let session = require('express-session');
 let MongoStore = require('connect-mongo')(session); // 会话导入到数据库中
+//let MongoStore = require('connect-mongo')(express); // 会话导入到数据库中
+
 
 // 连接数据库
 let mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://127.0.0.1:27017/shop');
+mongoose.connect('mongodb://127.0.0.1/shop');
 
 // post 请求
 let bodyParser = require('body-parser');
@@ -28,9 +30,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 
-// 路由中间件
-app.use('/users', users);
-
 // 会话
 app.use(session({
 	secret: 'shop',
@@ -39,12 +38,20 @@ app.use(session({
 	cookie: {
 		maxAge: 60 * 60 * 100
 	},
-	stroe: new MongoStore({
-		url: 'mongodb://127.0.0.1/shop'
-	})
+	store: new MongoStore({
+    url: 'mongodb://127.0.0.1/shop'
+})
 }));
+
+//app.use(express.cookieParser());
+
+
+
+// 路由中间件
+app.use('/users', users);
+
 
 
 app.listen(8088);
 
-console.log('启动成功');
+console.log('8088端口，启动成功');

@@ -15,15 +15,16 @@
 			</div>
 			
 			<ul class="nav navbar-nav">
-				<li ng-show="me"><a href="#/home">首页</a></li>
-				<li ng-hide="me"><a href="#/users/reg">注册</a></li>
-				<li ng-hide="me"><a href="#/users/login">登陆</a></li>
+				<li ng-show="me" ng-class="{active: isActive('/hoome')}"><a href="#/home">首页</a></li>
+				<li ng-hide="me" ng-class="{active: isActive('/users/reg')}"><a href="#/users/reg">注册</a></li>
+				<li ng-hide="me" ng-class="{active: isActive('/users/login')}"><a href="#/users/login">登陆</a></li>
+				<li ng-show="me" ng-class="{active: isActive('/wares/admin/list')}"><a href="#/wares/admin/list">商品管理</a></li>
 			</ul>
 			
 			<ul class="nav-navbar-nav navbar-right" ng-show="me">
-				<li class="dropdown">
+				<li class="dropdown" style="list-style: none;">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
-						<img style="width: 20px; height: 20px;" ng-src="{{ me.avatar }}" alt="{{ me.username }}" /><span>{{ me.username }}</span><span class="car"></span>
+						<img style="width: 20px; height: 20px;" ng-src="{{ me.avatar }}" alt="{{ me.username }}" /><span class="user-info">{{ me.username }}</span><span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu dropdown-menu-left">
 						<li><a href="#" ng-click="logout()">退出</a></li>
@@ -33,9 +34,7 @@
 			
 		</nav>
 		
-		<div ng-view="" class="row">
-			
-		</div>
+		<div ng-view="" class="row"></div>
 		
 	</body>
 	<script src="/lib/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
@@ -92,6 +91,10 @@
 					templateUrl: 'pages/user/login.html',
 					controller: 'LoginCtrl' 
 				})
+				.when('/wares/admin/list', {
+					templateUrl: 'pages/ware/admin/list.html',
+					controller: 'wareCtrl' 
+				})
 				.otherwise({
 					redirectTo: '/'
 				});
@@ -106,20 +109,29 @@
 		});
 		
 		// 导航
-		app.controller('NavBarCtrl', function ( $scope, $http, $location ) {
+		app.controller('NavBarCtrl', function ( $rootScope, $scope, $http, $location ) {
 			
+			// 登出
 			$scope.logout = function () {
 				
 				$http({
-					url: '/user/logout',
+					url: '/users/logout',
 					method: 'POST'
 				})
 					.success(function ( reslut ) {
-						$loction.path('/users/login');
+						$rootScope.me = null;
+						$location.path('/users/login');
 					})
 					.error(function ( data ) {
-						$loction.path('/users/login');
+						$location.path('/users/login');
 					});
+				
+			}
+			
+			// 导航亮色
+			$scope.isActive = function ( path ) {
+				
+				return path === $location.path();
 				
 			}
 			
@@ -159,9 +171,11 @@
 			$scope.save = function () {
 				
 				$http({
+					
 					url: '/users/login',
 					method: 'POST',
 					data: $scope.user
+					
 				})
 					.success(function ( reslut ) {
 						
@@ -171,10 +185,162 @@
 						
 					})
 					.error(function ( data ) {
+						
 //						$location.path('/users/login');
+
 					});
+					
+				return false;
 				
 			};
+			
+		});
+		
+		// 商品后台List
+		app.controller('wareCtrl', function ( $scope, $http, fileReader ) {
+			
+			// 
+			$scope.ware = {};
+			
+			// 搜索关键字
+			$scope.keyword = '';
+			
+			// 商品列表
+			$scope.wares = [{name: '矿泉水', parce: 10, imgSrc: '' }];
+			
+			// 页数
+			$scope.pages = [1, 2, 3];
+			
+			// 商品过滤函数
+			$scope.filetr = function () {
+				
+			}
+			
+			// 读取文件
+			$scope.getFile = function () {
+				
+				// 服务,异步读取文件
+				fileReader.readAsDataURL($scope.file, $scope)
+					.then(function ( reslut ) {
+						$scope.ware.imgSrc = reslut;
+					});
+				
+			}
+			
+		});
+		
+		// ---------------指令
+		app.directive('addWares', function () {
+			
+			return {
+				link: function ( scope, element, attrs ) {
+					
+					element.click(function () {
+						
+						// 解决视图数据 无法更新 ， 使用 $apply 主动触发。    自定义指令 中的数据和 视图中的数据 
+						scope.$apply(function () {
+							
+							scope.ware = {};  // 属性改变  让 scope 主动去触发   $watch - $disgit 机制
+							
+						});
+						
+						// Bootstrap js
+						$('#addDialog').modal(true);
+						
+					});
+					
+				}
+			}
+			
+		});
+		
+		// 实现文件预览
+		app.directive('fileModel', function () {
+			return {
+				link: function ( scope, element, attrs ) {
+					
+					element.bind('change', function ( ev ) {
+						
+						scope.file = element[0].files[0];
+						
+						// 文件读取
+						scope.getFile();
+						
+					});
+					
+				}
+			}
+		});
+		
+		
+		// 服务---------------------
+		
+		// 异步读取文件
+		app.factory('fileReader', function ( $q ) { // $q Promess 对象
+			
+			// 读取文件成功后触发
+			let onLoad = function ( reader, deferred, scope ) {
+				
+				return function () {
+					
+					scope.$apply(function () {
+						
+						deferred.resolve(reader.result);
+						
+					});
+						
+				}					
+				
+			}
+			
+			// 读取文件失败后触发
+			let onError = function ( reader, deferred, scope ) {
+				
+				return function () {
+					
+					scope.$apply(function () {
+						
+						deferred.reject(reader.result);
+						
+					});
+						
+				}					
+				
+			}
+			
+			// 文件读取器  // 获取文件读取器
+			let getReader = function ( deferred, scope ) {
+				
+				let reader = new FileReader(); // 文件读取器   HTML5 中的一个方法
+				
+				reader.onload = onLoad(reader, deferred, scope); 
+					
+				reader.onerror = onError(reader, deferred, scope);
+				
+				return reader;
+				
+			}
+				
+			// 读取 为Data URL	
+			let readAsDataURL = function ( file, scope ) {
+				
+				let deferred = $q.defer(); 
+				
+				let reader = getReader(deferred, scope);
+				
+				// 异步读取文件
+				reader.readAsDataURL(file);
+				
+				return deferred.promise; 
+				
+			}	
+			
+			// 服务返回
+			return {
+				
+				readDataUrl: readAsDataURL
+				
+			}
 			
 		});
 		

@@ -1,3 +1,4 @@
+
 let express = require('express');
 let User = require('../models').User;
 let crypto = require('crypto');
@@ -40,7 +41,7 @@ router.post('/reg', function ( req, res ) {
 router.post('/login', function ( req, res ) {
 	
 	let user = req.body;
-	
+		
 	// 查询数据库
 	User.findOne({username: user.username, password: encrypt(user.password)}, function ( err, user ) {
 		
@@ -49,7 +50,7 @@ router.post('/login', function ( req, res ) {
 			res.status(500).json({msg: err});
 			
 		} else {
-						
+			
 			req.session.user = user;  // 设置session
 			
 			res.json(user);
@@ -59,56 +60,32 @@ router.post('/login', function ( req, res ) {
 	} );	
 	
 });
-//
-//// 退出
-//router.post('/logout', function ( req, res ) {
-//	
-//	req.session.user = null;
-//	
-//	res.status(200).json({msg: 'success'});
-//	
-//});
-//
-//
-//// 检验登陆状态
-//router.post('/validate' ,function ( req, res ) {
-//	
-//	if ( req.session  ) {
-//		
-//		console.log( req.session );
-//		
-//		let users = req.session.user;
-//		
-//		if ( users && user._id ) {
-//			
-//			res.status(200).json(user);
-//			
-//		} else {
-//			
-//			res.status(401).json({msg: '用户未登陆'});
-//			
-//		}
-//		
-//	}
-//	
-//});
 
-
-
-router.post('/logout',function(req,res){
-    req.session.user = null;
-    res.status(200).json({msg:'success'})
+// 退出
+router.post('/logout', function ( req, res ) {
+	
+	req.session.user = null;
+	
+	res.status(200).json({msg: 'success'});
+	
 });
 
-router.post('/validate',function(req,res){
-    var user = req.session.user;
-    if(user && user._id){
+
+// 检验登陆状态
+router.post('/validate',function( req, res ){
+	
+    let user = req.session.user;
+    
+    if ( user && user._id ) {
+    	
         res.status(200).json(user)
-    }else{
+        
+    } else {
+    	
         res.status(401).json({msg:'用户未登陆'});
+        
     }
+    
 });
-
 
 module.exports = router;
-

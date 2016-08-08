@@ -2,3 +2,20 @@
 body {
 	margin-top: 70px;
 }
+
+
+.panel-heading {
+	text-align: center;
+	font-size: 22px;
+}
+
+.fl {
+	float: left !important;
+}
+
+.user-info {
+	padding-right: 100px; 
+	line-height: 50px; 
+	color: #111;
+}
+
