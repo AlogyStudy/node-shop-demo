@@ -199,14 +199,22 @@
 		// 商品后台List
 		app.controller('wareCtrl', function ( $scope, $http, fileReader ) {
 			
-			// 
 			$scope.ware = {};
 			
 			// 搜索关键字
 			$scope.keyword = '';
 			
 			// 商品列表
-			$scope.wares = [{name: '矿泉水', parce: 10, imgSrc: '' }];
+			$scope.wares = [];
+			
+			// 查询 list 数据
+			$http({
+				url: '/wares/list',
+				method: 'GET',
+			})
+				.success(function ( wares ) {
+					$scope.wares = wares;
+				});
 			
 			// 页数
 			$scope.pages = [1, 2, 3];
@@ -220,11 +228,40 @@
 			$scope.getFile = function () {
 				
 				// 服务,异步读取文件
-				fileReader.readAsDataURL($scope.file, $scope)
+				fileReader.readAsDataUrl($scope.file, $scope)
 					.then(function ( reslut ) {
 						$scope.ware.imgSrc = reslut;
 					});
 				
+			}
+			
+			// 保存文件
+			$scope.save = function () {
+				
+				let fd = new FormData(); // HTML5属性
+				
+				angular.forEach($scope.ware, function ( val, key ) {
+					
+					fd.append(key, val);
+					
+				});
+				
+				let options = {
+					url: '/wares/add', // 商品增加方法
+					method: 'POST',
+					data: fd,
+					headers: {'Content-type': undefined},
+					transformRequest: angular.identity	
+				};
+				
+				// 请求数据  
+				$http(options)
+					.success(function ( ware ) {
+						
+						// 返回文件 加入 wares 数组 中数据
+						$scope.wares.push(ware);
+						
+					});
 			}
 			
 		});
@@ -256,11 +293,13 @@
 		
 		// 实现文件预览
 		app.directive('fileModel', function () {
+			
 			return {
 				link: function ( scope, element, attrs ) {
 					
 					element.bind('change', function ( ev ) {
 						
+						// 文件
 						scope.file = element[0].files[0];
 						
 						// 文件读取
@@ -283,6 +322,7 @@
 				
 				return function () {
 					
+					// 异步读取无法知道何时更新， 需要主动触发.
 					scope.$apply(function () {
 						
 						deferred.resolve(reader.result);
@@ -292,6 +332,7 @@
 				}					
 				
 			}
+			
 			
 			// 读取文件失败后触发
 			let onError = function ( reader, deferred, scope ) {
@@ -338,12 +379,12 @@
 			// 服务返回
 			return {
 				
-				readDataUrl: readAsDataURL
+				readAsDataUrl: readAsDataURL
 				
 			}
-			
+
 		});
-		
+
 	</script>
 	
 </html>

@@ -18,7 +18,12 @@ mongoose.connect('mongodb://127.0.0.1/shop');
 // post 请求
 let bodyParser = require('body-parser');
 
-let users = require('./routes/users.js');
+
+// 路由文件
+let users = require('./routes/users');
+
+let wares = require('./routes/wares');
+
 
 // 使用静态文件服务器中间件
 app.use(express.static( path.join(__dirname, 'app', 'public') ));
@@ -49,6 +54,7 @@ app.use(session({
 
 // 路由中间件
 app.use('/users', users);
+app.use('/wares', wares);
 
 
 
